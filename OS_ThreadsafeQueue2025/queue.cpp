@@ -3,7 +3,15 @@
 #include "queue.h"
 
 Queue* init(void) {
-	return NULL;
+	//1. 새 Queue 구조체 동적 할당
+	Queue* q = new Queue;
+
+	//2. 헤드랑 테일 null 초기화
+	q->head = nullptr;
+	q->tail = nullptr;
+
+	//3. 만들어진 큐 포인터 리턴
+	return q;
 }
 
 void release(Queue* queue) {
