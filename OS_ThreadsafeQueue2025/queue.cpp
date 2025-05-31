@@ -11,7 +11,7 @@ Queue* init(void) {
 	q->tail = nullptr;
 
 	//3. 만들어진 큐 포인터 리턴
-	return q;
+	return q; 
 }
 
 void release(Queue* queue) {
