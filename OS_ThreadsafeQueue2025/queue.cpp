@@ -33,16 +33,66 @@ void release(Queue* queue) {
 }
 
 Node* nalloc(Item item) {
-	// Node 생성, item으로 초기화
-	return NULL;
+	// 새 Node를 위한 메모리 공간 할당
+	Node* node = (Node*)malloc(sizeof(Node));
+	if (node == NULL) return NULL;
+
+	// Item 안의 value(데이터 본체)를 복사할 메모리 공간 할당
+	void* copied_value = malloc(item.value_size);
+	if (copied_value == NULL) {
+		free(node);
+		return NULL;
+	}
+	// 원래 데이터 item.value 내용을 복사해서 넣음 (깊은 복사)
+	memcpy(copied_value, item.value, item.value_size);
+
+	// 노드 안의 item 채우기
+	node->item.key = item.key;		// key 복사
+	node->item.value = copied_value;	// 깊은 복사된 value 저장
+	node->item.value_size = item.value_size;	 // value의 크기도 같이 저장
+	node->next = NULL;	// 초기 상태에서는 다음 노드 없음
+
+	return node;	// 만들어진 새 노드 반환
 }
 
 void nfree(Node* node) {
-	return;
+	// NULL이면 아무것도 안 함
+	if (node == NULL) return;
+	
+	// value(깊은 복사한 데이터) 먼저 해제
+	free(node->item.value);
+	// 마지막으로 Node 자체 메모리 해제
+	free(node);
 }
 
 Node* nclone(Node* node) {
-	return NULL;
+	if (node == NULL) return NULL;
+
+	// 새 노드 메모리 할당
+	Node* new_node = (Node*)malloc(sizeof(Node));
+	// 메모리 할당 실패 시 리턴
+	if (new_node == NULL) return NULL;
+
+	// item.value 깊은 복사를 위한 메모리 할당
+	void* copied_value = malloc(node->item.value_size);
+	// value 복사 실패 시 정리하고 return
+	if (copied_value == NULL) {
+		free(new_node);
+		return NULL;
+	}
+
+	// 메모리 복사
+	memcpy(copied_value, node->item.value, node->item.value_size);
+	
+	// 새 노드의 item 구성
+	new_node->item.key = node->item.key;
+	new_node->item.value = copied_value;
+	new_node->item.value_size = node->item.value_size;
+
+	new_node->next = NULL;
+	//클론 노드는 연결 X
+
+	return new_node;
 }
 
 Reply enqueue(Queue* queue, Item item) {
