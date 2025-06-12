@@ -226,6 +226,66 @@ Reply dequeue(Queue* queue) {
 	return reply;
 }
 
+// 특정 범위의 key만 복사해서 새로운 큐를 리턴하는 함수
 Queue* range(Queue* queue, Key start, Key end) {
-	return NULL;
+	// 매개변수로 받은 큐가 아예 NULL이면 진행x
+	if (queue == NULL) return NULL;
+
+	// 복사한 결과를 담을 새 큐 생성
+	// 메모리 부족 등으로 실패할 수 있으니 check
+	Queue* new_queue = init();
+	if (new_queue == NULL) return NULL;
+
+	// 기존 큐를 처음부터 끝까지 순회하기 위한 포인터
+	Node* current = queue->head;
+
+	// 연결 리스트 순회 루프
+	while (current != NULL) {
+		// 현재 노드의 key가 원하는 범위에 있는지 체크
+		Key k = current->item.key;
+		if (k >= start && k <= end) {
+			// 복사할 새 아이템 구조체 생성
+			// 범위 안에 있는 item -> deep copy
+			Item new_item;
+			new_item.key = current->item.key;
+			new_item.value_size = current->item.value_size;
+			
+			// 깊은 복사를 위해 value용 메모리 새로 할당
+			new_item.value = malloc(new_item.value_size);
+
+			if (new_item.value == NULL) {
+				// 실패 시 -> 만든 새 큐 메모리 해제 후 NULL 리턴
+				release(new_queue);
+				return NULL;
+			}
+
+			// value도 실제 값 복사 (deep copy)
+			memcpy(new_item.value, current->item.value, new_item.value_size);
+
+			// 새 노드 생성
+			Node* new_node = (Node*) malloc(sizeof(Node));
+			// 노드 생성 실패 시 -> item의 value 해제, 큐 정리, NULL 리턴
+			if (new_node == NULL) {
+				free(new_item.value);
+				release(new_queue);
+				return NULL;
+			}
+
+			// 노드에 item 연결, next는 새 큐의 끝이라 NULL 초기화
+			new_node->item = new_item;
+			new_node->next = NULL;
+
+			// 새 큐에 첫 번째 노드 넣는 거면 head/tail set
+			if (new_queue->tail == NULL) {
+				new_queue->head = new_queue->tail = new_node;
+			} // 이후 노드는 tail 뒤에 붙이고 tail 갱신
+			else {
+				new_queue->tail->next = new_node;
+				new_queue->tail = new_node;
+			}
+		}
+		// 기존 큐의 다음 노드로 이동
+		current = current->next;
+	}
+	return new_queue;
 }
