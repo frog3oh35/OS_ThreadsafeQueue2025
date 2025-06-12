@@ -10,6 +10,7 @@ typedef void* Value;
 typedef struct {
 	Key key;
 	Value value;
+	int value_size; //byte, 0607 공지확인 후 수정사항..
 } Item;
 
 typedef struct {
