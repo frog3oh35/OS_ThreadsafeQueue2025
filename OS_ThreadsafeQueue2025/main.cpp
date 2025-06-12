@@ -62,6 +62,26 @@ int main() {
         cout << "Dequeue failed. Queue was empty." << endl;
     }
 
+    // ====== range() 테스트 추가 ======
+    cout << "\n--- Range Test : key 5 ~ 10 ---" << endl;
+
+    Queue* sub = range(queue, 5, 10);
+    if (sub == NULL) {
+        cout << "range() 실패" << endl;
+        release(queue); //기존 큐 해제
+        return 1;
+    }
+
+    while (true) {
+        Reply r = dequeue(sub);
+        if (!r.success) break;
+
+        cout << "Range result key: " << r.item.key << ", value: " << (char*)r.item.value << endl;
+        free(r.item.value); //복사된 값 해제
+    }
+
+    release(sub); //range로 맏느 새 큐 해제
+
     // ====== 마무리 ======
     release(queue);
     return 0;
